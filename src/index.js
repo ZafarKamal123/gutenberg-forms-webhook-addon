@@ -11,7 +11,6 @@ const { InspectorControls } = wp.blockEditor;
 const { PanelBody, Button } = wp.components;
 const { __ } = wp.i18n;
 
-// TODO remove webhook_fields_addon
 const withCustomControls = createHigherOrderComponent((BlockEdit) => {
 	return (props) => {
 		const currentBlock = getBlock(props.clientId),
