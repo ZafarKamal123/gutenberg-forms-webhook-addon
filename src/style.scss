@@ -62,7 +62,6 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 15px 15px;
-		background: #eee;
 		border: 1px solid #ccc;
 		&:not(:first-child) {
 			border-top: none !important;
@@ -95,6 +94,20 @@
 .cwp-gf-wb-action-modal {
 	@include scrollbar();
 
+	.cwp-gf-wb-error-help {
+		color: red !important;
+	}
+
+	.cwp-gf-wb-field-error {
+		input {
+			border: 1px solid red !important;
+			&:focus {
+				border: 1px solid red !important;
+				box-shadow: 0 0 0 1px red !important;
+			}
+		}
+	}
+
 	.cwp-gf-wb-required-field {
 		color: red;
 		margin-left: 5px;
@@ -122,6 +135,8 @@
 			.query_value_options {
 				padding: 0px 7px;
 				margin-bottom: 10px;
+				display: flex;
+				flex-direction: row;
 			}
 		}
 
@@ -143,7 +158,10 @@
 		.row-v {
 			display: flex;
 			flex-direction: column;
-			margin-right: 20px;
+			flex: 1;
+			&:nth-child(1) {
+				margin-right: 20px;
+			}
 		}
 
 		.mr-10 {

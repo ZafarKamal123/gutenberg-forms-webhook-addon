@@ -33,13 +33,16 @@ function WebhookPicker(props) {
 	const [selectedWebhook, setSelectedWebhook] = useState([]);
 
 	const openModal = () => setModal(true);
-	const closeModal = () => setModal(false);
+	const closeModal = () => {
+		setModal(false);
+		setSelectedWebhook({}); // un selecting the selected webhook
+	};
 
 	// this will update the webhook if there is selected in the selectedWebhook
 
 	const addAction = (webhookAction) => {
 		const newActions = clone(webhookActions);
-		const generatedId = uniqueId();
+		const generatedId = Math.floor(Math.random() * 1000);
 
 		if (has(webhookAction, "id") && !isEmpty(selectedWebhook)) {
 			const selectedWebhookIndex = findIndex(webhookActions, {
@@ -70,6 +73,12 @@ function WebhookPicker(props) {
 		let newActions = clone(webhookActions);
 		newActions = newActions.filter((action) => !isEqual(action.id, id));
 		setWebhookActions(newActions);
+		props.setAttributes({
+			extendedData: {
+				...props.attributes.extendedData,
+				webhooks: newActions,
+			},
+		});
 	};
 
 	const onSelect = (action) => {
@@ -101,6 +110,8 @@ function WebhookPicker(props) {
 					className="cwp-gf-wb-action-modal"
 					title={__("Webhook Action", TEXT_DOMAIN)}
 					onRequestClose={closeModal}
+					shouldCloseOnEsc={false}
+					shouldCloseOnClickOutside={false}
 				>
 					<WebhookFields
 						value={selectedWebhook}

@@ -1,6 +1,7 @@
 import React from "react";
 import { TEXT_DOMAIN } from "../../constants";
 import Repeater from "./repeater";
+import { validateWebhookAction } from "../../functions";
 
 const { useEffect, useState } = wp.element;
 const {
@@ -12,7 +13,18 @@ const {
 	__experimentalRadioGroup: RadioGroup,
 } = wp.components;
 
-const { isEmpty, map, clone, set, get } = window.lodash;
+const {
+	isEmpty,
+	map,
+	clone,
+	set,
+	get,
+	has,
+	each,
+	omit,
+	trim,
+	isString,
+} = window.lodash;
 const { __ } = wp.i18n;
 
 function WebhookFields(props) {
@@ -26,6 +38,8 @@ function WebhookFields(props) {
 		includeSelectiveFields: "false",
 		requestBody: [],
 	});
+
+	const [validationErrors, setValidationErrors] = useState({});
 
 	useEffect(() => {
 		const { value } = props;
@@ -188,7 +202,7 @@ function WebhookFields(props) {
 		},
 		{
 			label: "Add Custom Header",
-			value: "AddCustomHeader",
+			value: "addCustom",
 		},
 	];
 
@@ -196,18 +210,87 @@ function WebhookFields(props) {
 		const newState = clone(state);
 		set(newState, type, val);
 		setState(newState);
+		detectValidationErrorsFields(newState, type);
 	};
 
 	const getValue = (type) => get(state, type);
 
 	const saveAction = () => {
-		props.onAdd(state);
+		const currentValidationErrors = validateWebhookAction(state);
+
+		if (!isEmpty(currentValidationErrors)) {
+			setValidationErrors(currentValidationErrors);
+		} else {
+			props.onAdd(state);
+			setValidationErrors({});
+		}
+	};
+
+	const getHelpText = (field) => {
+		const hasErrorInField = has(validationErrors, field);
+		const fieldError = __(
+			<span className="cwp-gf-wb-error-help">
+				{get(validationErrors, `${field}.message`)}
+			</span>
+		);
+
+		switch (field) {
+			case "name":
+				return hasErrorInField
+					? fieldError
+					: __("Custom Name For Webhook", TEXT_DOMAIN);
+				break;
+			case "url":
+				return hasErrorInField
+					? fieldError
+					: __("Will be used in the webhook request.", TEXT_DOMAIN);
+		}
+	};
+
+	const hasError = (field) =>
+		has(validationErrors, field) && !isEmpty(validationErrors, field);
+
+	/**
+	 * Will detect if the field that has validation error is changing according to the
+	 * validity of the field and removing the error notice
+	 */
+
+	const detectValidationErrorsFields = (updatedState, fieldType) => {
+		const updatedValidationErrors = validateWebhookAction(updatedState);
+
+		// this condition tests if the upcoming state has resolved the validation error
+		if (!has(updatedValidationErrors, fieldType)) {
+			const newValidationErrors = omit(validationErrors, [fieldType]);
+			setValidationErrors(newValidationErrors);
+		} else if (has(updatedValidationErrors, fieldType)) {
+			setValidationErrors({
+				...validationErrors,
+				[fieldType]: get(updatedValidationErrors, fieldType),
+			});
+		}
+	};
+
+	const SaveTrigger = () => {
+		if (!isEmpty(validationErrors)) {
+			return (
+				<Button disabled isDefault onClick={saveAction}>
+					{__("Save Action", TEXT_DOMAIN)}
+				</Button>
+			);
+		} else {
+			return (
+				<Button isPrimary onClick={saveAction}>
+					{__("Save Action", TEXT_DOMAIN)}
+				</Button>
+			);
+		}
 	};
 
 	return (
 		<div>
 			<div className="wb-field">
 				<TextControl
+					className={hasError("name") ? "cwp-gf-wb-field-error" : ""}
 					label={__(
 						<span>
 							Webhook Name
@@ -217,15 +300,16 @@ function WebhookFields(props) {
 					)}
 					value={getValue("name")}
 					onChange={(name) => handleChange(name, "name")}
-					help={__("Custom name for the webhook.", TEXT_DOMAIN)}
+					help={getHelpText("name")}
 					placeholder={__("Webhook Name", TEXT_DOMAIN)}
 					type="text"
 				/>
 			</div>
 			<div className="wb-field">
 				<TextControl
+					className={hasError("url") ? "cwp-gf-wb-field-error" : ""}
 					placeholder={__("URL", TEXT_DOMAIN)}
-					help={__("Will be used in the webhook request.", TEXT_DOMAIN)}
+					help={getHelpText("url")}
 					value={getValue("url")}
 					onChange={(url) => handleChange(url, "url")}
 					label={__(
@@ -247,6 +331,7 @@ function WebhookFields(props) {
 						}
 						label={__("Request Method", TEXT_DOMAIN)}
 						options={supportedRequestMethods}
+						help={__("HTTP Method used for request", TEXT_DOMAIN)}
 					/>
 				</div>
 				<div className="row-v">
@@ -256,6 +341,7 @@ function WebhookFields(props) {
 							handleChange(requestFormat, "requestFormat")
 						}
 						label={__("Request Formats", TEXT_DOMAIN)}
+						help={__("Select Format for request", TEXT_DOMAIN)}
 						options={supportedFormats}
 					/>
 				</div>
@@ -328,9 +414,7 @@ function WebhookFields(props) {
 				<Button isDefault onClick={props.closeModal}>
 					{__("Cancel", TEXT_DOMAIN)}
 				</Button>
-				<Button isPrimary onClick={saveAction}>
-					{__("Save Action", TEXT_DOMAIN)}
-				</Button>
+				<SaveTrigger />
 			</div>
 		</div>
 	);
