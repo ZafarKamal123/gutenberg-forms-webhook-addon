@@ -2,6 +2,11 @@ import React from "react";
 import { TEXT_DOMAIN } from "../../constants";
 import Repeater from "./repeater";
 import { validateWebhookAction } from "../../functions";
+import {
+	supportedDefaultHeaders,
+	supportedFormats,
+	supportedRequestMethods,
+} from "../supports";
 
 const { useEffect, useState } = wp.element;
 const {
@@ -48,163 +53,6 @@ function WebhookFields(props) {
 			setState(value);
 		}
 	}, []);
-
-	const supportedRequestMethods = [
-		{
-			label: "GET",
-			method: "get",
-		},
-		{
-			label: "POST",
-			value: "post",
-		},
-		{
-			label: "PUT",
-			value: "put",
-		},
-		{
-			label: "PATCH",
-			value: "patch",
-		},
-		{
-			label: "DELETE",
-			value: "delete",
-		},
-	];
-
-	const supportedFormats = [
-		{
-			label: "JSON",
-			value: "json",
-		},
-		{
-			label: "FORM",
-			value: "form",
-		},
-	];
-
-	const supportedDefaultHeaders = [
-		{
-			label: "Accept",
-			value: "accept",
-		},
-		{
-			label: "Accept-Charset",
-			value: "accept-charset",
-		},
-		{
-			label: "Accept-Encoding",
-			value: "accept-encoding",
-		},
-		{
-			label: "Accept-Language",
-			value: "accept-language",
-		},
-		{
-			label: "Accept-Datetime",
-			value: "accept-datetime",
-		},
-		{
-			label: "Authorization",
-			value: "authorization",
-		},
-		{
-			label: "Cache-Control",
-			value: "cache-control",
-		},
-		{
-			label: "Connection",
-			value: "connection",
-		},
-		{
-			label: "Cookie",
-			value: "cookie",
-		},
-		{
-			label: "Content-Length",
-			value: "content-length",
-		},
-		{
-			label: "Date",
-			value: "date",
-		},
-		{
-			label: "Expect",
-			value: "expect",
-		},
-		{
-			label: "Forwarded",
-			value: "forwarded",
-		},
-		{
-			label: "Host",
-			value: "host",
-		},
-		{
-			label: "If-Match",
-			value: "if-match",
-		},
-		{
-			label: "If-Modified-Since",
-			value: "if-modified-since",
-		},
-		{
-			label: "If-None-Match",
-			value: "if-none-match",
-		},
-		{
-			label: "If-Range",
-			value: "if-range",
-		},
-		{
-			label: "If-Unmodified-Since",
-			value: "if-unmodified-since",
-		},
-		{
-			label: "Max-Forwards",
-			value: "max-forwards",
-		},
-		{
-			label: "Origin",
-			value: "origin",
-		},
-		{
-			label: "Pragma",
-			value: "pragma",
-		},
-		{
-			label: "Proxy-Authorization",
-			value: "proxy-authorization",
-		},
-		{
-			label: "Range",
-			value: "range",
-		},
-		{
-			label: "Referer",
-			value: "referer",
-		},
-		{
-			label: "TE",
-			value: "te",
-		},
-		{
-			label: "User-Agent",
-			value: "user-agent",
-		},
-		{
-			label: "Via",
-			value: "via",
-		},
-		{
-			label: "Warning",
-			value: "warning",
-		},
-		{
-			label: "Add Custom Header",
-			value: "addCustom",
-		},
-	];
 
 	const handleChange = (val, type) => {
 		const newState = clone(state);
@@ -362,6 +210,7 @@ function WebhookFields(props) {
 			{getValue("includeHeaders") === "true" && (
 				<div className="wb-field">
 					<Repeater
+						{...props}
 						context={"Header"}
 						value={getValue("requestHeaders")}
 						onChange={(value) => handleChange(value, "requestHeaders")}
@@ -396,6 +245,8 @@ function WebhookFields(props) {
 			{getValue("includeSelectiveFields") === "true" && (
 				<div className="wb-field">
 					<Repeater
+						{...props}
+						defaultCustom={true}
 						context={"Field"}
 						queryTitle={__("Field Name", TEXT_DOMAIN)}
 						value={getValue("requestBody")}

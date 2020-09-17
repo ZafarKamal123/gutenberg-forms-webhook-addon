@@ -3,6 +3,11 @@ import Empty from "./components/empty";
 import { TEXT_DOMAIN } from "../constants";
 import WebhookFields from "./components/fields";
 import ActionsList from "./components/actionsList";
+import {
+	supportedDefaultHeaders,
+	supportedFormats,
+	supportedRequestMethods,
+} from "./supports";
 
 const { useEffect, useState } = wp.element;
 const {
@@ -114,6 +119,7 @@ function WebhookPicker(props) {
 					shouldCloseOnClickOutside={false}
 				>
 					<WebhookFields
+						{...props}
 						value={selectedWebhook}
 						onAdd={addAction}
 						closeModal={closeModal}

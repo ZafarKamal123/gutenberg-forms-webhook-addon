@@ -143,6 +143,14 @@
 		.foot {
 			text-align: right;
 			margin-top: 10px;
+
+			button {
+				border-radius: 0 !important;
+			}
+
+			& button:nth-child(1) {
+				margin-right: 10px;
+			}
 		}
 	}
 

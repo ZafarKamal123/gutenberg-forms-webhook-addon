@@ -14,6 +14,7 @@ const {
 	isEmpty,
 	get,
 	each,
+	has,
 } = window.lodash;
 const TagSelector = get(window.cwp_gf_select("cwp/components"), "TagSelector");
 
@@ -21,16 +22,26 @@ function Repeater(props) {
 	const [fields, setFields] = useState([]);
 	const { queryOptions, queryTitle, optionTitle } = props;
 
-	const addField = () => {
+	const defaultCustom = has(props, "defaultCustom")
+		? props.defaultCustom
+		: false;
+
+	const addField = (custom = false) => {
 		const newFields = clone(fields);
 		const generatedID = Math.floor(Math.random() * 10000);
-
-		newFields.push({
+		const fieldToAdd = {
 			queryValue: "",
 			optionValue: "",
 			id: generatedID,
 			displayTagSelector: false,
-		});
+			addCustom: custom,
+		};
+
+		if (defaultCustom) {
+			fieldToAdd.addCustom = true;
+		}
+
+		newFields.push(fieldToAdd);
 		setFields(newFields);
 	};
 
@@ -78,21 +89,39 @@ function Repeater(props) {
 		<div className="cwp-gf-wb-repeater-field">
 			{!isEmpty(fields) &&
 				fields.map((field, idx) => {
-					const { queryValue, optionValue, id, displayTagSelector } = field;
+					const {
+						queryValue,
+						optionValue,
+						id,
+						displayTagSelector,
+						addCustom,
+					} = field;
 					const includeLabel = idx === 0;
 					const totalFields = fields.length;
 
 					return (
 						<div className="row">
 							<div className="query_select">
-								<SelectControl
-									value={queryValue}
-									onChange={(newQueryValue) =>
-										handleChange(newQueryValue, "queryValue", id)
-									}
-									label={includeLabel ? __(queryTitle, TEXT_DOMAIN) : ""}
-									options={queryOptions}
-								/>
+								{!addCustom && !defaultCustom && (
+									<SelectControl
+										value={queryValue}
+										onChange={(newQueryValue) => {
+											handleChange(newQueryValue, "queryValue", id);
+										}}
+										label={includeLabel ? __(queryTitle, TEXT_DOMAIN) : ""}
+										options={queryOptions}
+									/>
+								)}
+								{addCustom && (
+									<TextControl
+										onChange={(newQueryValue) =>
+											handleChange(newQueryValue, "queryValue", id)
+										}
+										placeholder={__(`Custom ${props.context}...`, TEXT_DOMAIN)}
+										value={queryValue}
+										label={includeLabel ? __(queryTitle, TEXT_DOMAIN) : ""}
+									/>
+								)}
 							</div>
 							<div className="query_value">
 								<div className="query_value_select">
@@ -113,6 +142,7 @@ function Repeater(props) {
 												className="cwp-tag-selector"
 											>
 												<TagSelector
+													clientId={props.clientId}
 													{...props}
 													insertTag={(tag) => {
 														handleChange(
@@ -156,7 +186,13 @@ function Repeater(props) {
 					);
 				})}
 			<div className="foot">
-				<Button isSmall isPrimary onClick={addField}>
+				{!defaultCustom && (
+					<Button isSmall isDefault onClick={() => addField(true)}>
+						{__(`Add Custom ${props.context}`, TEXT_DOMAIN)}
+					</Button>
+				)}
+
+				<Button isSmall isPrimary onClick={() => addField(false)}>
 					{__(`Add ${props.context}`, TEXT_DOMAIN)}
 				</Button>
 			</div>
