@@ -54,7 +54,7 @@ function WebhookFields(props) {
 		}
 	}, []);
 
-	const handleChange = (val, type) => {
+	const handleChange = (val = null, type = null) => {
 		const newState = clone(state);
 		set(newState, type, val);
 		setState(newState);

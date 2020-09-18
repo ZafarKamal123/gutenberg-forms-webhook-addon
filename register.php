@@ -13,17 +13,18 @@ add_action('admin_enqueue_scripts', function ($suffix) {
 add_filter('gutenberg_forms_integrations', function ($integrations) {
 
     $arguments = array(
-        'title' => __('Webhook'),
-        'is_pro'  => true,
-        'type'  => 'autoResponder',
-        'guide' => '',
-        'description' => "This add-on let's user send webhook payload to any urls",
-        'banner' => 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQsuwNquqMLhgVu59LwrDc0E293hAg9ftkyzA&usqp=CAU',
-        'fields' => array(),
-        'query_fields' => array(),
-        'api_fields' => array(),
-        'include_all_fields' => true,
-        'include_extended_data' => true
+        'title'                         => __('Webhook'),
+        'is_pro'                        => true,
+        'type'                          => 'autoResponder',
+        'guide'                         => '',
+        'description'                   => "This add-on let's user send webhook payload to any urls",
+        'banner'                        => 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQsuwNquqMLhgVu59LwrDc0E293hAg9ftkyzA&usqp=CAU',
+        'fields'                        => array(),
+        'query_fields'                  => array(),
+        'api_fields'                    => array(),
+        'include_all_fields'            => true,
+        'include_extended_data'         => true,
+        'include_extended_fields'       => true
     );
 
     $integrations['webhook'] = $arguments;
