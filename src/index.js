@@ -41,9 +41,15 @@ const withCustomControls = createHigherOrderComponent((BlockEdit) => {
 	};
 });
 
-// TODO test if the addon is enabled
-addFilter(
-	"editor.BlockEdit",
-	"cwp-wb-gutenberg-forms-webhook-addon/custom-panel",
-	withCustomControls
+const isAddonEnabled = get(
+	window,
+	"cwpGlobal.settings.integrations.webhook.enable"
 );
+
+if (isAddonEnabled === true || isAddonEnabled === "1") {
+	addFilter(
+		"editor.BlockEdit",
+		"cwp-wb-gutenberg-forms-webhook-addon/custom-panel",
+		withCustomControls
+	);
+}
