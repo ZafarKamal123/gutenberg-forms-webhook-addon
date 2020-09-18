@@ -30,11 +30,17 @@ add_filter('gutenberg_forms_integrations', function ($integrations) {
     );
     $supported_version = 2.1;
     $plugins = get_plugins();
-    $gutenberg_forms_init_script = 'gutenberg-forms/plugin.php';
-    $gutenberg_form_details = array_key_exists($gutenberg_forms_init_script, $plugins) ? $plugins[$gutenberg_forms_init_script] : [];
-    $gutenberg_form_version = array_key_exists('Version', $gutenberg_form_details) ? (float)$gutenberg_form_details['Version'] : null;
-    $c = $gutenberg_form_version <= $supported_version ? "true" : "false";
+    $gutenberg_forms_txt_domain = "cwp-gutenberg-forms";
+    $gutenberg_form_version = null;
 
+    foreach ($plugins as $plugin) {
+        $txt_domain = array_key_exists('TextDomain', $plugin) ? $plugin['TextDomain'] :  "";
+
+        if ($txt_domain === $gutenberg_forms_txt_domain) {
+            $plugin_version = array_key_exists('Version', $plugin) ? $plugin['Version'] : 1.0;
+            $gutenberg_form_version = $plugin_version;
+        }
+    }
 
     if (!is_null($gutenberg_form_version) and cwp_gf_wb_addon_compare_floats($gutenberg_form_version, $supported_version, '<')) {
 
