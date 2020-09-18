@@ -1,6 +1,8 @@
 <?php
 
 require_once plugin_dir_path(__FILE__) . 'api/index.php';
+require_once plugin_dir_path(__FILE__) . 'api/funcs.php';
+
 
 add_action('admin_enqueue_scripts', function ($suffix) {
     if ($suffix === 'post.php' or $suffix === 'post-new.php') {
@@ -31,8 +33,10 @@ add_filter('gutenberg_forms_integrations', function ($integrations) {
     $gutenberg_forms_init_script = 'gutenberg-forms/plugin.php';
     $gutenberg_form_details = array_key_exists($gutenberg_forms_init_script, $plugins) ? $plugins[$gutenberg_forms_init_script] : [];
     $gutenberg_form_version = array_key_exists('Version', $gutenberg_form_details) ? (float)$gutenberg_form_details['Version'] : null;
+    $c = $gutenberg_form_version <= $supported_version ? "true" : "false";
 
-    if (!is_null($gutenberg_form_version) and $gutenberg_form_version < $supported_version) {
+
+    if (!is_null($gutenberg_form_version) and cwp_gf_wb_addon_compare_floats($gutenberg_form_version, $supported_version, '<')) {
 
         $arguments['is_disabled'] = true; // disabling the integration
         $arguments['error'] = array(
